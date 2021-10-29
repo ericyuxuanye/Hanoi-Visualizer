@@ -4,9 +4,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 public class HanoiPanel extends JPanel {
+    private static final Color POLE_COLOR = new Color(0x594700);
+    private static final Font STEP_FONT = new Font("Monospace", Font.PLAIN, 15);
+    private static final char[] STEP_TEXT = new char[9];
+    static {
+        // initialize the first few chars
+        STEP_TEXT[0] = 'S';
+        STEP_TEXT[1] = 't';
+        STEP_TEXT[2] = 'e';
+        STEP_TEXT[3] = 'p';
+        STEP_TEXT[4] = ' ';
+    }
     private ArrayList<Disk> stackA;
     private final ArrayList<Disk> stackB = new ArrayList<>();
     private final ArrayList<Disk> stackC = new ArrayList<>();
@@ -86,47 +96,70 @@ public class HanoiPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        int width = getWidth();
+        int height = getHeight();
         // draw poles
-        g.setColor(Color.black);
-        for (int i = 0, j = getWidth() / 4; i < 3; i++, j += getWidth() / 4) {
-            g.drawLine(j, 0, j, getHeight());
+        g.setColor(POLE_COLOR);
+        for (int i = 0, j = width / 4; i < 3; i++, j += width / 4) {
+            g.fillRoundRect(j, height - Disk.HEIGHT * 11, 5, Disk.HEIGHT * 12, 5, 5);
         }
         // draw disks
         for (int i = 0; i < stackA.size(); i++) {
-            stackA.get(i).draw(g, i, 0);
+            stackA.get(i).draw(g, i, 0, width, height);
         }
         for (int i = 0; i < stackB.size(); i++) {
-            stackB.get(i).draw(g, i, 1);
+            stackB.get(i).draw(g, i, 1, width, height);
         }
         for (int i = 0; i < stackC.size(); i++) {
-            stackC.get(i).draw(g, i, 2);
+            stackC.get(i).draw(g, i, 2, width, height);
         }
+        // draw step
+        g.setColor(Color.black);
+        String number = Integer.toString(curr + 1);
+        for (int i = 0; i < number.length(); i++) {
+            STEP_TEXT[i + 5] = number.charAt(i);
+        }
+        g.setFont(STEP_FONT);
+        g.drawChars(STEP_TEXT, 0, number.length() + 5, 5, 20);
     }
 
-    private class Disk {
+    private static class Disk {
         public static final int HEIGHT = 20;
         public static final int INITIAL_WIDTH = 50;
         private final int number;
-        private static final Random rand = new Random();
-        private final Color color = Color.getHSBColor(rand.nextFloat(),
-                rand.nextFloat() * 0.5f + 0.5f, rand.nextFloat() * 0.5f + 0.5f);
+        private static final Color[] COLORS = {
+                new Color(0xff8e8e),
+                new Color(0xecb283),
+                new Color(0xd8ce77),
+                new Color(0xa7c56c),
+                new Color(0x72b261),
+                new Color(0x569f68),
+                new Color(0x4b8c78),
+                new Color(0x417179),
+                new Color(0x364a66),
+                new Color(0x2d2c52)
+        };
+        private final Color color;
         private static final int WIDTH_INC = 10;
         public Disk(int number) {
             this.number = number;
+            color = COLORS[number];
         }
 
         /**
          * Draws this rectangle
-         *
-         * @param g     graphics object
-         * @param num   height from bottom starting from 0
-         * @param stack number from 0 to 2, the stack of this rectangle
+         * @param g      graphics object
+         * @param num    height from bottom starting from 0
+         * @param stack  number from 0 to 2, the stack of this rectangle
+         * @param width  width of outer panel
+         * @param height height of outer panel
          */
-        public void draw(Graphics g, int num, int stack) {
-            int x = HanoiPanel.this.getWidth() / 4 * (stack + 1) - (number * WIDTH_INC) - INITIAL_WIDTH / 2;
-            int width = number * WIDTH_INC * 2 + INITIAL_WIDTH;
+        public void draw(Graphics g, int num, int stack, int width, int height) {
+            int x = width / 4 * (stack + 1) - (number * WIDTH_INC) - INITIAL_WIDTH / 2;
+            int rectWidth = number * WIDTH_INC * 2 + INITIAL_WIDTH;
             g.setColor(color);
-            g.fillRect(x, HanoiPanel.this.getHeight() - num * HEIGHT - HEIGHT, width, HEIGHT);
+            //noinspection SuspiciousNameCombination
+            g.fillRoundRect(x, height - num * HEIGHT - HEIGHT, rectWidth, HEIGHT, HEIGHT, HEIGHT);
         }
     }
 }

@@ -1,16 +1,12 @@
 package com.company;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.net.URL;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -20,7 +16,7 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
  */
 public class Main implements Runnable {
     private final JPanel controls = new JPanel(new GridBagLayout());
-    // GridPanel that shows the interactive grid
+    // HanoiPanel that renders the disks
     private HanoiPanel hp = new HanoiPanel(5);
     // JButton that plays/stops the simulation
     private final JButton playPause = new JButton(playIcon);
@@ -39,41 +35,16 @@ public class Main implements Runnable {
     static {
         // Set look and feel. I think FlatLightLaf looks more modern than the default java look and feel.
         if (!FlatLightLaf.setup()) System.err.println("Unable to set look and feel");
+        // apple stuff
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        // round buttons
+        UIManager.put( "Button.arc", 25);
         // initialize images
-        URL playUrl = Main.class.getResource("/play.png");
-        URL pauseUrl = Main.class.getResource("/pause.png");
-        URL resetUrl = Main.class.getResource("/reset.png");
-        URL prevUrl = Main.class.getResource("/prev.png");
-        URL nextUrl = Main.class.getResource("/next.png");
-        if (playUrl == null) {
-            System.err.println("Unable to load play image");
-            playIcon = null;
-        } else {
-            playIcon = new ImageIcon(playUrl);
-        }
-        if (pauseUrl == null) {
-            System.err.println("Unable to load pause image");
-            pauseIcon = null;
-        } else {
-            pauseIcon = new ImageIcon(pauseUrl);
-        }
-        if (resetUrl == null) {
-            System.err.println("Unable to load reset image");
-            resetIcon = null;
-        } else {
-            resetIcon = new ImageIcon(resetUrl);
-        }
-        if (nextUrl == null) {
-            System.err.println("Unable to load next image");
-            nextIcon = null;
-        } else {
-            nextIcon = new ImageIcon(nextUrl);
-        }if (prevUrl == null) {
-            System.err.println("Unable to load prev image");
-            prevIcon = null;
-        } else {
-            prevIcon = new ImageIcon(prevUrl);
-        }
+        playIcon = new FlatSVGIcon("play.svg", 50, 50);
+        pauseIcon = new FlatSVGIcon("pause.svg", 50, 50);
+        resetIcon = new FlatSVGIcon("reset.svg", 50, 50);
+        nextIcon = new FlatSVGIcon("next.svg", 50, 50);
+        prevIcon = new FlatSVGIcon("prev.svg", 50, 50);
     }
 
     public static void main(String[] args) {
@@ -81,8 +52,6 @@ public class Main implements Runnable {
     }
 
     public void run() {
-        // apple stuff
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
         JFrame f = new JFrame("Hanoi Solver");
         JMenuBar mb = new JMenuBar();
         mb.setName("Hanoi Solver");
@@ -91,7 +60,7 @@ public class Main implements Runnable {
         changeDisks.setAccelerator(
                 KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         f.setPreferredSize(new Dimension(1000, 500));
-        f.setMinimumSize(new Dimension(500, 370));
+        f.setMinimumSize(new Dimension(500, 400));
         optionsMenu.add(changeDisks);
         mb.add(optionsMenu);
         f.setJMenuBar(mb);
@@ -116,8 +85,7 @@ public class Main implements Runnable {
             play = !play;
         });
         changeDisks.addActionListener(new ActionListener() {
-            // Default random chance
-            private static final int DEFAULT_VALUE = 3;
+            public static final int DEFAULT_VALUE = 5;
             private final SpinnerModel model = new SpinnerNumberModel(DEFAULT_VALUE,
                     1,
                     10,
@@ -163,7 +131,7 @@ public class Main implements Runnable {
             }
         });
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 3, 0, 3);
+        gbc.insets = new Insets(2, 3, 2, 3);
         gbc.weightx = 1;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -181,6 +149,8 @@ public class Main implements Runnable {
         gbc.weightx = 1;
         gbc.anchor = GridBagConstraints.LINE_START;
         controls.add(next, gbc);
+        gbc.gridy = 2;
+        controls.add(Box.createVerticalStrut(5), gbc);
         mainPanel.add(controls, BorderLayout.SOUTH);
         f.setContentPane(mainPanel);
         f.setDefaultCloseOperation(EXIT_ON_CLOSE);
